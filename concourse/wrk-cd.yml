@@ -1,5 +1,5 @@
 resources:
-- name: wrk-pipeline-configs 
+- name: concourse-configs 
   type: git
   source:
     uri: https://github.com/lcrisci/continuous-delivery.git
@@ -14,38 +14,43 @@ jobs:
   - name: build 
     plan:
       - get: wrk-git-src
+      - get: concourse-configs 
       - task: build 
-        file: wrk-pipeline-configs/build.yml
+        file: concourse-configs/concourse/wrk-pipeline-configs/build.yml
 
   - name: package
     plan:
+      - get: concourse-configs 
+        passed: [ build ] 
       - task: package 
-        file: wrk-pipeline-configs/package.yml
+        file: concourse-configs/concourse/wrk-pipeline-configs/package.yml
 
   - name: deploy-dev
     plan:
+      - get: concourse-configs 
+        passed: [ package ] 
       - task: deploy-dev 
-        file: wrk-pipeline-configs/deploy-dev.yml
+        file: concourse-configs/concourse/wrk-pipeline-configs/deploy-dev.yml
 
   - name: deploy-stg
     plan:
+      - get: concourse-configs 
+        passed: [ deploy-dev ] 
       - task: deploy-stg 
-        file: wrk-pipeline-configs/deploy-stg.yml
+        file: concourse-configs/concourse/wrk-pipeline-configs/deploy-stg.yml
 
   - name: deploy-prd
     plan:
+      - get: concourse-configs 
+        passed: [ deploy-stg ] 
       - task: deploy-prd
-        file: wrk-pipeline-configs/deploy-prd.yml
+        file: concourse-configs/concourse/wrk-pipeline-configs/deploy-prd.yml
 
 groups:
-- name: DEV
+- name: WRK 
   jobs:
   - build
   - package
   - deploy-dev
-- name: STG 
-  jobs:
   - deploy-stg
-- name:  PRD 
-  jobs:
   - deploy-prd
