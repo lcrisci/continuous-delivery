@@ -1,0 +1,13 @@
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: gcc
+inputs:
+- name: wrk-binary 
+run:
+  path: sh
+  args:
+  - -exc
+  - |
+    echo "Packaging the binary"

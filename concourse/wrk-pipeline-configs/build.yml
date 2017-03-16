@@ -1,0 +1,18 @@
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: gcc
+inputs:
+- name: wrk-git-src
+
+run:
+  path: sh
+  args:
+  - -exc
+  - |
+    cd wrk-git-src
+    make
+
+outputs:
+- name: wrk-binary

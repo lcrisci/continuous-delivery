@@ -1,0 +1,51 @@
+resources:
+- name: wrk-pipeline-configs 
+  type: git
+  source:
+    uri: https://github.com/lcrisci/continuous-delivery.git
+    branch: master
+- name: wrk-git-src 
+  type: git
+  source:
+    uri: https://github.com/wg/wrk.git
+    branch: master
+
+jobs:
+  - name: build 
+    plan:
+      - get: wrk-git-src
+      - task: build 
+        file: wrk-pipeline-configs/build.yml
+
+  - name: package
+    plan:
+      - task: package 
+        file: wrk-pipeline-configs/package.yml
+
+  - name: deploy-dev
+    plan:
+      - task: deploy-dev 
+        file: wrk-pipeline-configs/deploy-dev.yml
+
+  - name: deploy-stg
+    plan:
+      - task: deploy-stg 
+        file: wrk-pipeline-configs/deploy-stg.yml
+
+  - name: deploy-prd
+    plan:
+      - task: deploy-prd
+        file: wrk-pipeline-configs/deploy-prd.yml
+
+groups:
+- name: DEV
+  jobs:
+  - build
+  - package
+  - deploy-dev
+- name: STG 
+  jobs:
+  - deploy-stg
+- name:  PRD 
+  jobs:
+  - deploy-prd
